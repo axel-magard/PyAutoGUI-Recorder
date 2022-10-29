@@ -2,7 +2,7 @@ import time
 import tkinter as tk
 import tkinter.filedialog
 import pyautogui
-from pynput import mouse
+from pynput import mouse, keyboard
 from optparse import OptionParser
 
 class Stopwatch():
@@ -23,21 +23,59 @@ def on_click(x, y, button, pressed):
         if pressed:
             if button.name == "left":
                 listbox.insert(tk.END, "pyautogui.click(x=%d, y=%d)" % (x,y))
-            else:    
+            else:
                 listbox.insert(tk.END, "pyautogui.click(x=%d, y=%d, button='right')" % (x,y))
-            listbox.insert(tk.END, "time.sleep(%f)" % clock.elapsed(True))    
+            listbox.insert(tk.END, "time.sleep(%f)" % clock.elapsed(True))
+
+def on_press(key):
+    if not stopRecording:
+        try:
+            listbox.insert(tk.END, "pyautogui.keyDown('%s')" % key.name)
+        except AttributeError:
+            listbox.insert(tk.END, "pyautogui.keyDown(%s)" % key)
+        # listbox.insert(tk.END, "time.sleep(%f)" % clock.elapsed(True))
+
+
+def on_release(key):
+    if not stopRecording:
+        try:
+            listbox.insert(tk.END, "pyautogui.keyUp('%s')" % key.name)
+        except AttributeError:
+            listbox.insert(tk.END, "pyautogui.keyUp(%s)" % key)
+        # listbox.insert(tk.END, "time.sleep(%f)" % clock.elapsed(True))
+
 
 listener = mouse.Listener(on_click=on_click)
-listener.start() 
+listener.start()
+
+listener2 = keyboard.Listener(on_release=on_release,on_press=on_press)
+listener2.start()
 
 def recording():
     listbox.insert(tk.END, "pyautogui.moveTo(%d, %d)" % pyautogui.position())
     if options.Delay:
         listbox.insert(tk.END, "time.sleep(%f)" % options.Delay)
-    else:    
+    else:
         listbox.insert(tk.END, "time.sleep(%f)" % clock.elapsed(True))
     if not stopRecording:
         root.after(delay*1000, recording)
+
+def playing():
+    global stopPlaying, entryIdx
+    entry = listbox.get(entryIdx)
+    if entry:
+        if entryIdx > 1:
+            eval(entry)
+            listbox.select_clear(0, tk.END)
+            listbox.select_set(entryIdx)
+            listbox.see(entryIdx)
+        entryIdx += 1
+    else:
+        stopPlaying = True
+        button_p["relief"] = tk.RAISED
+        button_r["state"] = "normal"
+    if not stopPlaying:
+        root.after(1, playing)
 
 def click_r():
     global stopRecording
@@ -47,21 +85,13 @@ def click_r():
     if not options.Delay:
         clock.reset()
     if options.recordMoves:
-        root.after(delay, recording)   
+        root.after(delay, recording)
 def click_p():
+    global stopPlaying
     button_p["relief"] = tk.SUNKEN
     button_r["state"] = "disabled"
-    i = 0
-    while True:
-        entry = listbox.get(i)
-        if entry:
-            if i > 1:
-                eval(entry)
-            i += 1
-        else:
-            break    
-    button_p["relief"] = tk.RAISED
-    button_r["state"] = "normal"        
+    stopPlaying = False
+    root.after(1, playing)
 def click_s():
     global stopRecording
     stopRecording = True
@@ -70,7 +100,7 @@ def click_s():
     button_r["relief"] = tk.RAISED
     button_p["relief"] = tk.RAISED
 def click_d():
-    name = tkinter.filedialog.asksaveasfilename()    
+    name = tkinter.filedialog.asksaveasfilename()
     if name:
         f = open(name,"w")
         i = 0
@@ -80,17 +110,17 @@ def click_d():
                 f.write(entry+"\n")
                 i += 1
             else:
-                break    
+                break
         f.close()
 
 usage = '''
 python3 PyAutoGuiRecorder.oy OPTIONS
 '''
-parser = OptionParser(usage)        
+parser = OptionParser(usage)
 parser.add_option("--delay", dest="Delay", default=0.0, type="float",
     help="Replay delay in seconds")
 parser.add_option("--recordMoves", dest="recordMoves", action="store_true",
-    help="Capture simply mouse moves")    
+    help="Capture simply mouse moves")
 options, args = parser.parse_args()
 
 root = tk.Tk()
@@ -98,6 +128,8 @@ title = "PyAutoGuiRecorder Version 1.0"
 root.title(title)
 delay = 1
 stopRecording = True
+stopPlaying = True
+entryIdx = 0
 # Create listbox
 frame = tk.Frame(root)
 frame.pack(fill=tk.BOTH, expand=True)
