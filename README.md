@@ -29,8 +29,17 @@ Options:
   -h, --help     show this help message and exit
   --delay=DELAY  Replay delay in seconds
   --recordMoves  Capture simply mouse moves
-
+  
 ```
 
-- Option --delay can be used to specify a fixed delay between mouse clicks
-- Option --recordMoves can be used to in addition to mouse clicks periodically also capture mouse moves
+- Option **--delay** can be used to specify a fixed delay between mouse clicks
+- Option **--recordMoves** can be used to in addition to mouse clicks periodically also capture mouse moves
+
+## Installation
+
+Install missing Python modules:
+
+```
+pip3 install pyautogui
+pip3 install pynput
+```
