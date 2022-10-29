@@ -43,3 +43,6 @@ Install missing Python modules:
 pip3 install pyautogui
 pip3 install pynput
 ```
+
+## Known problems
+- Hotkeys are not properly detected on Windows
