@@ -22,7 +22,7 @@ Use the Download button to save Python code to a file
 ## Synopsis
 ```
 Usage: 
-python3 PyAutoGuiRecorder.oy OPTIONS
+python3 PyAutoGuiRecorder.py OPTIONS
 
 
 Options:
