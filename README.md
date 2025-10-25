@@ -37,7 +37,8 @@ Options:
 
 ## Installation
 
-Install missing Python modules:
+Clone this git repo on your computer, then
+install missing Python modules:
 
 ```
 pip3 install pyautogui
