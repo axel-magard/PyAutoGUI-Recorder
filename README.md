@@ -45,5 +45,9 @@ pip3 install pyautogui
 pip3 install pynput
 ```
 
+## Limitations
+
+Due to a [bug](https://github.com/moses-palmer/pynput/issues/614) in pynput package this script only runs on Python up to version 3.9 !
+
 ## Known problems
 - Hotkeys are not properly detected on Windows
